@@ -1,10 +1,32 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import random
+import os
+from dotenv import load_dotenv
 
-app = FastAPI()
+load_dotenv()
+
+app = FastAPI(
+    title="RESTful API - Lova Calculator",
+    description="An API to calculate love compatibility between two names",
+    version="1.0.0"
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Allow all origins in development - ONLY FOR DEVELOPMENT
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+# Access environment variables
+DEBUG = os.getenv("DEBUG", "False") == "True" # Convert DEBUG value to a boolean
+API_KEY = os.getenv("API_KEY")
 
 class Match(BaseModel):
-    id: int
     person1: str
     person2: str
     score: int  
@@ -15,7 +37,7 @@ matches = [
     {"id": 2, "person1": "Sophia", "person2": "Noah", "score": 92}
 ]
 
-# GET love calculation/match mellem to navne, og check om dette match findes
+# GET love calculation/match mellem to navne, og tjek om dette match findes
 @app.get("/lovecalc")
 def beregn_kaerlighed(person1: str, person2: str):
     samlet_navn = (person1 + person2).lower()
